@@ -5,6 +5,7 @@ _A_ASCII_B byte 65
 _Z_ASCII_B byte 90
 a_A_DIFF_B byte 32
 ALPHABET_LENGTH_B byte 26
+BETWEEN_CHAR_STEP qword 2
 .code
 ; ==============================================================
 ; Main procedure used for applying laplace filter on image row
@@ -47,6 +48,7 @@ xor r13, r13
 xor r14, r14
 xor r15, r15 
 MAINLOOP:
+	xor rax, rax
 	mov al, byte ptr[r10]
 	cmp al, a_ASCII_B
 	jl IF_SKIP
@@ -56,21 +58,22 @@ MAINLOOP:
 		jg IF_SKIP
 		; TO_UPPER:
 		sub al, a_A_DIFF_B
-		jz ENCRYPT_CHAR
+		jmp ENCRYPT_CHAR
 
 	IF_SKIP:
 		cmp al, _A_ASCII_B
 		jl SKIP
 		cmp al, _Z_ASCII_B
 		jg SKIP
-		jz ENCRYPT_CHAR
+		jmp ENCRYPT_CHAR
 
 		SKIP:
-		jz INCREMENT_LOOP
+		jmp INCREMENT_LOOP
 
 	ENCRYPT_CHAR:
 	xor rbx, rbx
 	mov rbx, R11
+	add rbx, r15
 	add rbx, r15
 
 	xor rcx, rcx
@@ -91,11 +94,14 @@ MAINLOOP:
 	inc r15
 	MODULO_KEY:
 	mov rax, r15
-	div dword ptr[rbp+48]
+	xor rcx, rcx
+	xor rdx, rdx
+	mov ecx, dword ptr[rbp+48]
+	div ecx
 	mov r15, rdx
 
 	INCREMENT_LOOP:
-	inc r10 ; increment text char index
+	add r10, BETWEEN_CHAR_STEP; increment text char index
 	inc r12 							; inrement loop counter
 	cmp r12d, r9d	
 	jz CLEARSTACK

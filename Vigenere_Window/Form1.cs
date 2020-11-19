@@ -29,8 +29,8 @@ namespace Vigenere_Window
             else if (comboBox1.SelectedIndex == 1) // Selected Asm
             {
                 string pw = textBox1.Text;
-                string s0 = textBox3.Text;
-                textBox2.Text = new VigenereCipher().Encrypt(s0, pw);
+                string s0 = textBox2.Text;
+                textBox3.Text = new VigenereCipher().Encrypt(s0, pw);
             }
             else
             {
