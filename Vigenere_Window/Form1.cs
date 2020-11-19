@@ -23,7 +23,7 @@ namespace Vigenere_Window
             {
                 string pw = textBox1.Text; //Plain Text Cipher Key
                 string s0 = textBox2.Text; //Plain Text Cipher Text
-                textBox3.Text = v.encrypt(s0, pw, 1); // Update Encrypted box.
+                textBox3.Text = v.encrypt(s0, pw.Trim(), 1); // Update Encrypted box.
 
             }
             else if (comboBox1.SelectedIndex == 1) // Selected Asm
