@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace GaussFilter.Algorithm
+namespace Vigenere
 {
     public class VigenereCipher
     {
-        [DllImport("Vigenere.ASM.dll", EntryPoint = "cipher")]
+        [DllImport("Vigenere.ASM.dll", EntryPoint = "encrypt")]
         private static extern unsafe int VigenereCipherAsm(char* text, char* key, char* encrypted, int textLength, int keyLength);
 
         public unsafe string Encrypt(string text, string key)
@@ -17,7 +17,7 @@ namespace GaussFilter.Algorithm
             var keyCharArray = key.ToCharArray();
             fixed (char* textPtr = textCharArray)
             fixed (char* keyPtr = keyCharArray)
-            fixed (char* encryptedPtr = keyCharArray)
+            fixed (char* encryptedPtr = new char[textLength])
             {
                 VigenereCipherAsm(textPtr, keyPtr, encryptedPtr, textLength, keyLength);
                 encryptedText = Marshal.PtrToStringAnsi((IntPtr)encryptedPtr);

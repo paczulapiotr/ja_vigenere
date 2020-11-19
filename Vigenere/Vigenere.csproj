@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{54AAE775-64B5-4F65-89CB-749D64A39E39}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>GaussFilter.Algorithm</RootNamespace>
-    <AssemblyName>GaussFilter.Algorithm</AssemblyName>
+    <RootNamespace>Vinegere</RootNamespace>
+    <AssemblyName>Vinegere</AssemblyName>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

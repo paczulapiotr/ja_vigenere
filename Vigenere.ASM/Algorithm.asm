@@ -1,28 +1,31 @@
 .data 
-; amount of bytes in one pixel
-BYTE_IN_PIXEL_Q qword 4
+a_ASCII_B byte 97
+z_ASCII_B byte 122
+_A_ASCII_B byte 65
+_Z_ASCII_B byte 90
+a_A_DIFF_B byte 32
+ALPHABET_LENGTH_B byte 26
 .code
 ; ==============================================================
 ; Main procedure used for applying laplace filter on image row
 ; ### PARAMETERS ###
-;	int startingSubpixelIndex		RCX => R10
-;	int subpixelToFilter			RDX => R11
-;	byte* original,					R8						[byte array of original image]
-;	byte* filtered,					R9						[byte array of filtered image]
-;	int* mask,		    			STACK [rbp+48] 			[laplace mask table pointer]
-;	int subpixelWidth    			STACK [rbp+56] 			[subpixelWidth]
+;	char* text						RCX => R10
+;	char* key						RDX => R11
+;	char* encrypted					R8						
+;	int textLength,					R9						
+;	int keyLength,	    			STACK [rbp+48] 			
 ; ### USED REGISTERS ###
-; rax
-; rbx - temp value for subpixel 
-; rcx
-; rdx
+; rax - c
+; rbx 
+; rcx 
+; rdx 
 ; r12 - loop counter
-; r13 - mask subpixel index
-; r14 -
-; r15 -
+; r13 
+; r14 
+; r15 - j
 ; ==============================================================
 
-laplace proc
+encrypt proc
 ; prepare for stack deallocation
 push rbp
 mov rbp, rsp
@@ -40,116 +43,61 @@ mov r10, rcx
 mov r11, rdx
 ; run main loop
 xor r12, r12
+xor r13, r13
+xor r14, r14
+xor r15, r15 
 MAINLOOP:
-xor rbx, rbx
-xor rcx, rcx
-xor rdx, rdx
-; Set sub pixel
-		; add 1st subpixels from mask
-		xor r13, r13
-		xor rcx, rcx
-		mov ecx, dword ptr[rbp+56]
-		sub r13, rcx
-		sub r13, BYTE_IN_PIXEL_Q
-		add r13, r8  					; add original image starting index
-		add r13, r10 					; add starting subpixel index
-		add r13, r12 					; add loop index
-		xor eax, eax
-		mov al, byte ptr[r13] 			; get corresponding image subpixel
-		mov rcx, qword ptr[rbp+48] 		; get mask value 
-		imul eax, dword ptr[rcx] 		; multiply by mask value
-		add ebx, eax
-		; add 2nd subpixels from mask
-		add r13, BYTE_IN_PIXEL_Q
-		xor eax, eax
-		mov al, byte ptr[r13] 			; get corresponding image subpixel
-		mov rcx, qword ptr[rbp+48] 		; get mask value 
-		imul eax, dword ptr[rcx+4] 		; multiply by mask value
-		add ebx, eax
-	; add 3rd subpixels from mask
-		add r13, BYTE_IN_PIXEL_Q
-		xor eax, eax
-		mov al, byte ptr[r13] 			; get corresponding image subpixel
-		mov rcx, qword ptr[rbp+48] 		; get mask value 
-		imul eax, dword ptr[rcx+8] 		; multiply by mask value
-		add ebx, eax
-	; add 4th subpixels from mask
-		sub r13, BYTE_IN_PIXEL_Q
-		sub r13, BYTE_IN_PIXEL_Q
-		xor rcx, rcx
-		mov ecx, dword ptr[rbp+56]
-		add r13, rcx
-		xor eax, eax
-		mov al, byte ptr[r13] 			; get corresponding image subpixel
-		mov rcx, qword ptr[rbp+48] 		; get mask value 
-		imul eax, dword ptr[rcx+12] 	; multiply by mask value
-		add ebx, eax
-	; add 5th subpixels from mask
-		add r13, BYTE_IN_PIXEL_Q
-		xor eax, eax
-		mov al, byte ptr[r13] 			; get corresponding image subpixel
-		mov rcx, qword ptr[rbp+48] 		; get mask value 
-		imul eax, dword ptr[rcx+16] 	; multiply by mask value
-		add ebx, eax
-	; add 6th subpixels from mask
-		add r13, BYTE_IN_PIXEL_Q
-		xor eax, eax
-		mov al, byte ptr[r13] 			; get corresponding image subpixel
-		mov rcx, qword ptr[rbp+48] 		; get mask value 
-		imul eax, dword ptr[rcx+20] 	; multiply by mask value
-		add ebx, eax
-	; add 7th subpixels from mask
-		sub r13, BYTE_IN_PIXEL_Q
-		sub r13, BYTE_IN_PIXEL_Q
-		xor rcx, rcx
-		mov ecx, dword ptr[rbp+56]
-		add r13, rcx
-		xor eax, eax
-		mov al, byte ptr[r13] 			; get corresponding image subpixel
-		mov rcx, qword ptr[rbp+48] 		; get mask value 
-		imul eax, dword ptr[rcx+24] 	; multiply by mask value
-		add ebx, eax
-	; add 8th subpixels from mask
-		add r13, BYTE_IN_PIXEL_Q
-		xor eax, eax
-		mov al, byte ptr[r13] 			; get corresponding image subpixel
-		mov rcx, qword ptr[rbp+48] 		; get mask value 
-		imul eax, dword ptr[rcx+28] 	; multiply by mask value
-		add ebx, eax
-	; add 9th subpixels from mask
-		add r13, BYTE_IN_PIXEL_Q
-		xor eax, eax
-		mov al, byte ptr[r13] 			; get corresponding image subpixel
-		mov rcx, qword ptr[rbp+48] 		; get mask value 
-		imul eax, dword ptr[rcx+32] 	; multiply by mask value
-		add ebx, eax
+	mov al, byte ptr[r10]
+	cmp al, a_ASCII_B
+	jl IF_SKIP
+	
+	IF_TO_UPPER:
+		cmp al, z_ASCII_B
+		jg IF_SKIP
+		; TO_UPPER:
+		sub al, a_A_DIFF_B
+		jz ENCRYPT_CHAR
 
-	; check max/min for subpixels
+	IF_SKIP:
+		cmp al, _A_ASCII_B
+		jl SKIP
+		cmp al, _Z_ASCII_B
+		jg SKIP
+		jz ENCRYPT_CHAR
 
-	cmp ebx, 255
-	jg SET_MAX
-	cmp ebx, 0
-	jl SET_MIN
-	jmp SET
+		SKIP:
+		jz INCREMENT_LOOP
 
-	SET_MAX:
-	mov ebx, 255
-	jmp SET
+	ENCRYPT_CHAR:
+	xor rbx, rbx
+	mov rbx, R11
+	add rbx, r15
 
-	SET_MIN:
-	mov ebx, 0
-	jmp SET
+	xor rcx, rcx
+	mov cl, byte ptr[rbx]
+	add al, cl
 
-	SET:
-	mov rax, r9
-	add rax, r12
-	add rax, r10
-	mov byte ptr[rax], bl
-	; set subpixels
+	MODULO:         ; calcs eax mod ebx, returns eax
+    xor edx, edx  
+    xor ebx, ebx
+	mov bl, ALPHABET_LENGTH_B 
+	div ebx     
+    mov eax, edx ; the remainder was stored in edx 
+	add al, _A_ASCII_B
+	mov byte ptr[r8], al
+	inc r8
 
+	; set new j
+	inc r15
+	MODULO_KEY:
+	mov rax, r15
+	div dword ptr[rbp+48]
+	mov r15, rdx
 
+	INCREMENT_LOOP:
+	inc r10 ; increment text char index
 	inc r12 							; inrement loop counter
-	cmp r12d, r11d			; check with subpixed width of image
+	cmp r12d, r9d	
 	jz CLEARSTACK
 	jmp MAINLOOP
 
@@ -165,5 +113,5 @@ CLEARSTACK:
 	pop rax
 	pop rbp
 	ret
-laplace endp 
+encrypt endp 
 end
