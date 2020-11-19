@@ -1,0 +1,3 @@
+LIBRARY "Vigenere.ASM.dll"
+EXPORTS  
+	laplace   @1
